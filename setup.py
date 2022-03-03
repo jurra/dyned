@@ -8,4 +8,24 @@ setup(name='dined',
       author_email='dined-io@tudelft.nl',
       license='BSD',
       packages=['dined'],
+      packages=find_packages(),
+      install_requires=[
+            "numpy",
+            "pandas",
+            "scipy",
+            "seaborn",
+            "openpyxl"
+      ],
+      extras_require={
+        'dev': [
+            'pytest',
+            'pytest-pep8',
+            'pytest-cov',
+            "jupyter,
+            "notebook,
+        ]
+      },
       zip_safe=False)
+      
+)
+
