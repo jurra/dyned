@@ -3,59 +3,47 @@ from dined.dined import *
 import pytest
 
 @pytest.fixture
-def pop_1():
-    '''
-    Loads a sample population 1
-    '''
-    # TODO: Optimize this fixture smaller data frame
-    path = "./tests/fixtures/population_mock.csv"
+def pop_door():
+    '''Loads a sample population 1'''
+
+    path = "./tests/fixtures/pop_door.csv"
     return pd.read_csv(path)
 
 @pytest.fixture
-def pop_2():
-    '''
-    Loads a sample population 2
-    '''
-    # TODO: Optimize this fixture smaller data frame
-    path = "./tests/fixtures/population_mock_2.csv"
-    return pd.read_csv(path)
+def specs_door():
+    '''Sample door handle specs'''
 
-@pytest.fixture
-def door_handle_specs():
-    '''
-    Loads a sample door handle specs
-    '''
-    return pd.DataFrame({"Dimensions": ["Stature (mm)", "Elbow Ht Stand Rt (mm)" ],
-                         "Target percentile": ["5%", "99%"],
-                         "Clearance":[0, 0]})
+    return load_specs("./tests/fixtures/specs_door.csv")    
+
+def test_load_specs():
+    '''Tests if the specs are loaded correctly'''
+
+    with pytest.raises(AssertionError):
+        # If this passess it means we are catching the errors we are looing for
+        load_specs("./tests/fixtures/broken_specs_door.csv") 
 
 
-def test_load_pop_1(pop_1):
-    '''
-    Tests if the sample population is loaded correctly
-    '''
-    assert type(pop_1) == pd.core.frame.DataFrame, "The population must be a dataframe" 
+def test_load_pop_door(pop_door):
+    '''Tests if the sample population is loaded correctly'''
+   
+    assert type(pop_door) == pd.core.frame.DataFrame, "The population must be a dataframe" 
 
-def test_get_design_param(pop_1):
-    param = get_design_param(pop_1["Stature (mm)"], "5%", 10 )
+def test_get_design_param(pop_door):
+    param = get_design_param(pop_door["Stature (mm)"], 5, 10 )
+    
     assert param == pytest.approx(1589.0)
 
-def test_get_design_params(pop_1, door_handle_specs):
+def test_get_design_params(specs_door, pop_door):
     '''
-    Test this with a door handle
-    WHEN a population dataframe with the "Stature (mm)" column,
-    
-    AND another dataframe with the "Elbow Ht Stand Rt (mm)" column
-    
-    AND a dataframe of specs with the "Dimensions" column, the "Target percentile" column 
-    and the "Clearance" column
-
-    THEN return a dataframe with the updated design specifications
+    Given that the specs are loaded correctly, 
+    and the population is loaded dataframe contains the dimension values, 
+    and column names as stated in the specs,
+    this test will check if the design parameters are calculated correctly
     '''
-    assert 
-     
+    design = get_design_params(specs_door, pop_door)
+    assert design["Design specifications"].equals(design["Desired Outcomes"])
 
-    # Except if populations dataframes have same column names
+
 
 
 
