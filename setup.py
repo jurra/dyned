@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(name='dined',
       version='0.1',
@@ -7,5 +7,23 @@ setup(name='dined',
       author='Delft University of Technology',
       author_email='dined-io@tudelft.nl',
       license='BSD',
-      packages=['dined'],
-      zip_safe=False)
+      packages=find_packages(),
+      install_requires=[
+            'numpy',
+            'pandas',
+            'scipy',
+            'seaborn',
+            'openpyxl'
+      ],
+      extras_require={
+        'dev': [
+            'pytest',
+            'pytest-pep8',
+            'pytest-cov',
+            'jupyter',
+            'notebook',
+        ]
+      },
+      zip_safe=False
+)
+
