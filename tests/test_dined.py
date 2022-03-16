@@ -1,6 +1,7 @@
 import pandas as pd
-from dined.dined import *
 import pytest
+
+from dined.calculate import *
 
 @pytest.fixture
 def pop_door():
@@ -35,6 +36,8 @@ def test_get_design_param(pop_door):
 
 def test_get_design_params(specs_door, pop_door):
     '''
+    This will check that design parameters are calculated correctly
+
     Given that the specs are loaded correctly, 
     and the population is loaded dataframe contains the dimension values, 
     and column names as stated in the specs,
@@ -43,7 +46,19 @@ def test_get_design_params(specs_door, pop_door):
     design = get_design_params(specs_door, pop_door)
     assert design["Design specifications"].equals(design["Desired Outcomes"])
 
+def test_dined_data():
+    '''
+    This will check that data from dined is loaded correctly
 
+    '''
+    pass
+
+def test_dined_standardize(data: pd.DataFrame, mapping: dict)-> pd.DataFrame:
+    '''
+
+
+    '''
+    pass
 
 
 
