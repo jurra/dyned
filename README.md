@@ -12,6 +12,7 @@ python3 -m venv .env
 source .env/bin/activate
 ```
 - To reproduce the environment dependencies, I am relying on `setup.py`
-- In development mode I install packages using `pip install -e .[dev]`. 
+- In development mode I install packages using `pip install -e .[dev]`. With pip3 this should work: `pip3 install "-e.[dev]"`
 (`[dev]` will install the development dependencies.)
+- You can run the test by running `pytest` in the comand line.
 
