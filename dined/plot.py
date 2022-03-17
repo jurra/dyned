@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+'''
+Plot relevant visualizations for antrhopometric data
+'''
 import numpy as np
 import pandas as pd
 

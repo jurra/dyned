@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+'''
+This module contains the functions that calculate the design parameters
+'''
 import os
 import numpy as np
 import pandas as pd

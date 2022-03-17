@@ -1,6 +1,14 @@
+.vscode
+
+# virtual environment
 env
 
+# Development with modules
 *.egg-info/
 
+# notebooks
 */.ipynb_checkpoints
 */__pycache__
+notebooks/experiment.ipynb
+
+
