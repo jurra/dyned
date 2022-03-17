@@ -11,4 +11,6 @@ env
 */__pycache__
 notebooks/experiment.ipynb
 
+experiments/
+
 
