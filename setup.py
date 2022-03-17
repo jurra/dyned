@@ -12,8 +12,10 @@ setup(name='dined',
             'numpy',
             'pandas',
             'scipy',
+            'bokeh',
             'seaborn',
-            'openpyxl'
+            'openpyxl',
+            'requests'
       ],
       extras_require={
         'dev': [
@@ -22,6 +24,8 @@ setup(name='dined',
             'pytest-cov',
             'jupyter',
             'notebook',
+            'pylint',
+            'dotenv',
         ]
       },
       zip_safe=False
