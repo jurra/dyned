@@ -25,7 +25,7 @@ setup(name='dined',
             'jupyter',
             'notebook',
             'pylint',
-            'dotenv',
+            'python-dotenv'
         ]
       },
       zip_safe=False
