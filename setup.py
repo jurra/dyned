@@ -25,7 +25,9 @@ setup(name='dined',
             'jupyter',
             'notebook',
             'pylint',
-            'python-dotenv'
+            'python-dotenv',
+            'mysql-connector-python' #TODO: Remove later this is necessesary for exporting the current database to csvs
+
         ]
       },
       zip_safe=False
