@@ -1,10 +1,10 @@
 .vscode
 
 # virtual environment
-.env
 env
 
 # ignore envirnment variables
+.env
 
 # Development with modules
 *.egg-info/
