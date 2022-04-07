@@ -1,7 +1,7 @@
 .vscode
 
 # virtual environment
-env
+.env
 
 # dot env
 .env
@@ -13,7 +13,11 @@ env
 */.ipynb_checkpoints
 */__pycache__
 notebooks/experiment.ipynb
+notebooks/*.csv
 
 experiments/
 
-
+# ignore OSX stuff
+.DS_Store
+*/.DS_Store
+*/*/.DS_Store
