@@ -11,7 +11,7 @@ env
 
 # notebooks
 */.ipynb_checkpoints
-*/__pycache__
+**/__pycache__
 notebooks/experiment.ipynb
 notebooks/*.csv
 
