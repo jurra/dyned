@@ -1,10 +1,10 @@
 .vscode
 
 # virtual environment
+.env
 env
 
-# dot env
-.env
+# ignore envirnment variables
 
 # Development with modules
 *.egg-info/
@@ -13,7 +13,11 @@ env
 */.ipynb_checkpoints
 */__pycache__
 notebooks/experiment.ipynb
+notebooks/*.csv
 
 experiments/
 
-
+# ignore OSX stuff
+.DS_Store
+*/.DS_Store
+*/*/.DS_Store
