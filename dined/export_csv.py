@@ -1,5 +1,7 @@
 '''
-Convert results from sql queries to csv files
+Convert results from sql queries to csv files given the current dined database schemas
+The result is a dir with csv viles where each file is a study.
+Each study is a table consiting of "individuals"(rows) and "measurements" per individuals(columns)
 '''
 import sys
 
@@ -90,8 +92,6 @@ def get_studies_names(studies_metadata: str) -> list:
         # Return a list of dictionaries with the study id and its name  
         simplified_metadata = [{'study_id': study['id'], 'study_name': study['name']} for study in data]
         
-        # with open('studies_metadata.json', 'w') as outfile:
-        #     json.dump(simplified_metadata, outfile)
         return simplified_metadata
 
 def count_studies(db):
@@ -134,8 +134,10 @@ def measurements_per_individual(data: pd.DataFrame, measures_spec: list) -> pd.D
     df.columns = columns_names
     return df
 
-def export_raw_csv(db, studies_metadata: str):
-    '''For each study writes a csv file'''
+def export_raw_csv(db, studies_metadata: str, target_dir: str):
+    '''For each study writes a csv file
+    target_dir: directory where the csv files will be written
+    '''
     # Count distinct studies
     query = 'SELECT DISTINCT study_id FROM measurements'
     studies = query_to_df(db, query)
@@ -152,13 +154,13 @@ def export_raw_csv(db, studies_metadata: str):
         data = get_measurements(db, study_id)
         
         # Create studies directory if it doesnt exist
-        if not os.path.exists('studies'):
-            os.makedirs('studies')
+        if not os.path.exists(target_dir):
+            os.makedirs(target_dir)
         
-        write_to_csv(data, f'studies/{study_name}.csv')
+        write_to_csv(data, f'{target_dir}/{study_name}.csv')
 
 # Write formated data where each individual is a row
-def export_formatted_csv(db, studies_metadata, measures_spec):
+def export_formatted_csv(db, studies_metadata, measures_spec, target_dir:str) -> None:
     '''For each study writes a csv file'''
     # Count distinct studies
     query = 'SELECT DISTINCT study_id FROM measurements'
@@ -171,16 +173,20 @@ def export_formatted_csv(db, studies_metadata, measures_spec):
         study_id = str(study_id) # Make sure we compare the same types
         # get the study name
         study = [study for study in metadata if str(study['study_id']) == str(study_id)]
-        study_name = study[0]['study_name']
+        study_name = study[0]['study_name'
+        ]
+        # Avoid file name collisions
+        study_name = study_name.replace(' ', '_')
+        study_name = study_name.lower()
         
         data = get_measurements(db, study_id)
         df = measurements_per_individual(data, measures_spec)
     
         # Create studies directory if it doesnt exist
-        if not os.path.exists('studies'):
-            os.makedirs('studies')
+        if not os.path.exists(target_dir):
+            os.makedirs(target_dir)
         # Create dataframe with measurements per individual
-        write_to_csv(df, f'studies/{study_name}.csv')
+        write_to_csv(df, f'{target_dir}/{study_name}.csv')
 
 # function to read csv study file
 def read_csv_study(filename:str) -> pd.DataFrame:
@@ -190,9 +196,8 @@ def read_csv_study(filename:str) -> pd.DataFrame:
     
 def main():
     db = create_engine(uri, echo=True)
-    # measures_spec = load_measures_spec('./metadata/measures.json')
     # For each study write a csv file
-    export_formatted_csv(db, './metadata/studies.json', './metadata/measures.json')
+    export_formatted_csv(db, './metadata/studies.json', './metadata/measures.json', './data')
         
 
 if __name__ == '__main__':
