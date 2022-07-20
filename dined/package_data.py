@@ -54,7 +54,7 @@ class DataPackage():
 
 def get_fields_from_metadata(metadata_path) -> list:
     '''Gets fields from the dined metadata used to describe dined data
-    '''
+    '''    
     # load metadata
     metadata = json.load(open(metadata_path))
     
@@ -90,24 +90,26 @@ def get_fields_from_file(file_path: str, dataset_fields: list) -> list:
     We read the columns and if the column name is in the list of fields generated,
     we return a list of fields
     '''
-    # Get fields from file
-    fields = []
-    # Open the file with pandas
-    df = pd.read_csv(file_path)
+    # ignore file if it is not a csv
+    if file_path.endswith('.csv'):
+        # Get fields from file
+        fields = []
+        # Open the file with pandas
+        df = pd.read_csv(file_path)
 
-    # Pick the fields that match the column in the file
-    for column in df.columns:
-        for field in dataset_fields:
-            if column == field['name']:
-                fields.append(field)
-    return fields
+        # Pick the fields that match the column in the file
+        for column in df.columns:
+            for field in dataset_fields:
+                if column == field['name']:
+                    fields.append(field)
+        return fields
     
 def write_fields(fields, fields_path):
     with open(fields_path, 'w') as f:
         # write fields to file
         json.dump(fields, f, indent=4)
 
-def build_dined_data_package(metadata_file='./metadata/measures.json', data_dir='data'):
+def build_dined_data_package(metadata_file='./metadata/measures.json', data_dir='./data'):
     '''Builds a data package for the dined data.'''
     # Get fields from metadata
     pkg = Package(
