@@ -2,16 +2,21 @@
 Generate a data-package.json for the dined data.
 For now each resource is a table that should be a study
 Each study has individuals as rows and measurements as fields
+
+TODO: Packaging must be genericized to allow the transformation of different
+tables coming from differnet sources and not necessarily standardize like dined data,
+perhaps this package can also facilitate in this....perhaps is out of scope...
 '''
 from distutils.command import build
 import json
 import os
 from os import name
-from frictionless import Package, Resource
-import pandas as pd
-# Load env where we store metadata files, etc.
 
-# Field data class
+import pandas as pd
+from frictionless import Package, Resource, validate
+
+# We use this class to generate fields for each resource in
+# the data package
 class Field:
     '''
     A class to store field data.
@@ -70,7 +75,13 @@ def get_fields_from_metadata(metadata_path) -> list:
         for field_info in group['labels']:
             field = Field(field_info['name_en'])
             field.add_property('id', field_info['id'])
-            field.add_property('description', field_info['description_en'])
+
+            # if there is no description, use the name
+            if field_info['description_en'] == '' or field_info['description_en'] == None:
+                field.add_property('description', field_info['name_en'])
+            else:
+                field.add_property('description', field_info['description_en'])
+            
             field.add_property('type', "number")
             field.add_property('rdfType', 'https://schema.org/QuantitativeValue')
             field.add_property('unit', field_info['dimension'])
@@ -116,21 +127,28 @@ def build_dined_data_package(metadata_file='./metadata/measures.json', data_dir=
         name='dined-tables',
         title='Dined tabular Data',
         description='A data package consisting of tables describing 1D dimensional anthropometric data.',
-        resources=[]
         ) 
     
+    pkg.resources = [] # we do this after creating the package to keep a more convenient output format
     files = os.listdir(data_dir)
 
     for file in files:
-        # Create a resource for each file
-        resource = Resource(
-            name=file,
-            title=file,
-            description='A table of data from the ' + file + ' file.'
-        )
-        file_fields = (get_fields_from_file(os.path.join(data_dir, file), get_fields_from_metadata(metadata_file)))
-        resource.schema.fields = file_fields
-        pkg.resources.append(resource)
+        # ignore files that are not csv
+        if file.endswith('.csv'):
+            # Create a resource for each file
+            resource = Resource(
+                # TODO: Get proper names and titles of the studies from the studies.json
+                name=file,
+                title=file,
+                description='A table of data from the ' + file + ' file.'
+            )
+
+            # Here we get fields for a file by inspecting which columns are in the file that also match the fields in the metadata
+            file_fields = get_fields_from_file(os.path.join(data_dir, file), 
+                                            get_fields_from_metadata(metadata_file))
+            resource.schema.fields = file_fields
+            pkg.resources.append(resource)
+    
     return pkg
 
 
@@ -140,29 +158,45 @@ def write_data_package(data_package: DataPackage, package_medata_path: str, pack
     with open(f"{package_medata_path}/{package_name}", 'w') as f:
         json.dump(data_package, f, indent=4)
 
-def validate_table(package, table_path: str) -> None:
-    '''TODO: Validates a table using frictionless.
-    Once we have created the data we want to make sure that all data files are valid, 
-    this is the ultimate test for this module.
+def validate_package(package_descriptor) -> None:
+    '''
+    Checks for errors in the package using the frictionless 
+    matadata spec for data-package
     '''    
-    package.validate()
-    pass
+    # Load package descriptor as a frictionless package
+    pkg = Package(package_descriptor)
+    # Validate each file in the data directory
+    for resource in pkg.resources:
+        # Validate each resource
+        report = validate(f"./data/{resource.name}")
+        # if report is invalid, write the log to a file
+        if not report.valid:
+            with open('validation_log.txt', 'w') as f:
+                f.write(str(report.flatten(["rowPosition", "fieldPosition", "code"])))
+            raise Exception('Invalid package')
+        else:
+            print(f'resource {resource.name} is valid')
 
-# Create a data package using frictionless
-def main()-> None:
-    return build_dined_data_package()
+    report = validate(package_descriptor)
+    if not report.valid:
+        with open('validation_log.txt', 'w') as f:
+            f.write(str(report.flatten(["rowPosition", "fieldPosition", "code"])))
+        raise Exception('Invalid package')
+    else:
+        print('package is valid')
 
 # Run main function
 if __name__ == '__main__':
-    # TODO: pass arguments to main function from the command line
-    # main("metadata","measures.json")
-    # fields = get_fields_from_metadata("metadata/measures.json")
-    # write_fields(fields, "./metadata/fields.json")
-    pkg = main()
-    write_data_package(pkg, "./metadata", "data-package.json")
-
+    # This the target directory where we want to put our package
+    PACKAGE_DIR = './data'
+    PACKAGE_DESCRIPTOR = './data/data-package.yaml'
+    INFO = './metadata/measures.json'
+    package = build_dined_data_package()
+    package.to_json('./data/data-package.json')
+    package.to_yaml('./data/data-package.yaml')
+    validate_package(PACKAGE_DESCRIPTOR)
+    # write_data_package(package, "./metadata", "data-package.json")
     print('Done.')
-    # exit(0)
 
 
 
