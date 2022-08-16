@@ -15,7 +15,6 @@ import os
 from os import name
 
 import json
-from pprint import pprint
 from xmlrpc.client import Boolean
 
 import pandas as pd
@@ -356,7 +355,6 @@ def validate_resources(package_metadata='data-package/json') -> list:
     pkg = Package(package_metadata)
     return list(map(validate_resource, pkg.resources))
 
-# Run main function
 if __name__ == '__main__':
     PACKAGE_METADATA = "./data-package.json"
     if len(sys.argv) > 2 : 
@@ -375,11 +373,9 @@ if __name__ == '__main__':
     # r =  validate_resources(f"{PACKAGE_DIR}/{PACKAGE_METADATA}")
     report = validate_package(f"{PACKAGE_DIR}/{PACKAGE_METADATA}")
     if report['valid'] == False:
-        pprint(f"Invalid package but no errors are collected: {report['errors']}")
-        pprint('Try frictionless cli by running: \n ' 
-               '$ frictionless validate data-package.json')
+        print(report.to_summary())
     else:
-        pprint(f"Valid package")
+        print(f"Valid package")
     print('Done.')
 
 
