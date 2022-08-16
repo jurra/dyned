@@ -3,14 +3,12 @@ Convert results from sql queries to csv files given the current dined database s
 The result is a dir with csv viles where each file is a study.
 Each study is a table consiting of "individuals"(rows) and "measurements" per individuals(columns)
 '''
-import sys
 
 import os 
 from os import environ as env
+import re
 
-import mysql.connector
 from mysql.connector import Error
-
 import numpy as np
 import pandas as pd
 import json
@@ -143,7 +141,6 @@ def export_raw_csv(db, studies_metadata: str, target_dir: str):
         write_to_csv(data, f'{target_dir}/{study_name}.csv')
 
 # Write formated data where each individual is a row
-# FIXME: Fix this entire messy function
 def export_formatted_csv(db: sqlalchemy.engine.base.Engine , 
                         studies_metadata: str, 
                         measures_spec: str,  
@@ -167,17 +164,20 @@ def export_formatted_csv(db: sqlalchemy.engine.base.Engine ,
         
         data = get_study_measurements(db, study_id)
         df = measurements_per_individual(data, measures_spec)
-    
+
+        # format study name to avoid file name collisions by matching to regexp
+        study_name = re.sub(r'[\.\-\ ]', '_', study_name)
+
         # Create studies directory if it doesnt exist
         if not os.path.exists(target_dir):
             os.makedirs(target_dir)
         # Create dataframe with measurements per individual
-        write_to_csv(df, f'{target_dir}/{study_id}_{study_name}.csv')
+        write_to_csv(df, f'{target_dir}/id{study_id}_{study_name}.csv')
     
 def main():
     db = create_engine(DB_URI, echo=True)
     # For each study write a csv file
-    export_formatted_csv(db, './metadata/studies.json', './metadata/measures.json', './check-data')
+    export_formatted_csv(db, './metadata/studies.json', './metadata/measures.json', './data')
     return db
 
 if __name__ == '__main__':
