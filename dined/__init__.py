@@ -3,6 +3,10 @@
 
 import json
 
+# When creating the package we prefix the study_id with 'id' to avoid file name collisions
+# This is the regex pattern that describes the prefix
+FILE_ID_REGEX = 'id[0-9]+_'
+
 def load_measures_metadata(measures_json : json) -> dict:
     """Load the measures.json specification file into a flat list of dictionaries 
     containing the measure id, name and unit"""
