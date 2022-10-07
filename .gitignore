@@ -22,6 +22,6 @@ experiments/
 */.DS_Store
 */*/.DS_Store
 
-data/
-**/**.csv
-experiments
+# data/
+# **/**.csv
+**/*_no_*
