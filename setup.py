@@ -28,7 +28,8 @@ setup(name='dined',
             'python-dotenv==0.20.0',
             'mysql-connector-python==8.0.28', 
             'SQLAlchemy==1.4.35',
-            'frictionless==4.40.6'
+            'frictionless==4.40.6',
+            'genson==1.2.2'
         ]
       },
       zip_safe=False
