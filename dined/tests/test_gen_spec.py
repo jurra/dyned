@@ -1,10 +1,11 @@
 import json
 import os
 from dataclasses import dataclass
+from operator import itemgetter
 
 # import fastjsonschema
+import pandas as pd
 from jsonschema import validate
-from pandas import array
 import pytest
 from genson import SchemaBuilder
 
@@ -26,29 +27,21 @@ class Measure():
             "measure": self.measure
         }
 
-# fixture for measure
-@pytest.fixture
-def valid_measure_data():
-    '''measure_data fixture'''
-    return { "name": "Head",
-    "description": "the head description",
-    "measure": {
-        "value": 10,
-        "unit": "cm",
-        "labels": ["head", "hands", "sitting"]
-        }
-    }
-@pytest.fixture
-def invalid_measure_data():
-    '''measure_data fixture'''
-    return { "name": "Arm",
-    "description": "the head description",
-    "measure": {
-        "value": "A string",
-        "unit": "cm",
-        "labels": ["head", "hands", "sitting"]
-        }
-    }
+# normalize data with pandas
+def normalize_measurement(measurement):
+    '''Normalize measurements for one measure type from seralized json
+    to a pandas dataframe
+    >>> normalize_measurement(measurement)
+    output example:
+    head.value   head.unit    head.labels
+         10        cm         [head, hands, sitting]
+    '''
+    # We build a dictionary that can use pandas json normalize to get a normalized
+    # dataframe
+    name, measure = itemgetter('name', 'measure')(measurement)
+    measurement = {}
+    measurement[name] = measure
+    return pd.json_normalize(measurement)
 
 measure_schema = {
     "type": "object",
@@ -78,6 +71,10 @@ head_schema = {
             "type": "string",
             "pattern": "Head"
         },
+        "field_name": {
+            "type": "string",
+            "pattern": "head"
+        },
         "description": {
             "type": "string",
             "pattern": "the head description"
@@ -91,6 +88,16 @@ head_schema = {
         "measure": measure_schema
     }
 }
+
+# Example of serialized antropometric data respecting the head_schema_standard
+HEAD = { "name": "head",
+    "description": "the head description",
+    "measure": {
+        "value": 10,
+        "unit": "cm",
+        "labels": ["head", "hands", "sitting"]
+        }
+    }
 
 def validate_schema(schema, data):
     '''Validate a schema against data'''
@@ -123,6 +130,23 @@ def load_jsonschema(filename):
     with open(filename,'r', encoding='utf-8') as f:
         schema = json.loads(f.read())
     return schema
+
+@pytest.fixture
+def valid_measure_data():
+    '''measure_data fixture'''
+    return HEAD
+
+@pytest.fixture
+def invalid_measure_data():
+    '''measure_data fixture'''
+    return { "name": "Arm",
+    "description": "the head description",
+    "measure": {
+        "value": "A string",
+        "unit": "cm",
+        "labels": ["head", "hands", "sitting"]
+        }
+    }
 
 # Validate measure
 def test_measure_standard(valid_measure_data, invalid_measure_data):

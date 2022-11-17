@@ -7,10 +7,10 @@ import json
 # This is the regex pattern that describes the prefix
 FILE_ID_REGEX = 'id[0-9]+_'
 
-def load_measures_metadata(measures_json : json) -> dict:
+def load_measures_metadata(measures_json_file : str) -> dict:
     """Load the measures.json specification file into a flat list of dictionaries 
     containing the measure id, name and unit"""
-    with open(measures_json) as json_file:
+    with open(measures_json_file) as json_file:
         data = json.load(json_file)
         # flatten measures.json dictionary g is groups and gg is subgroup of g
         flat = [ gg for g in data for gg in g['labels'] ]

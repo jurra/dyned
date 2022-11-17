@@ -3,9 +3,13 @@ from importlib.resources import path
 import json
 
 import pandas as pd
-import frictionless as fl
+from frictionless import Package
 
+'''
+Here we are trying conventional extension of the pandas.DataFrame class
+using inheritance. 
 
+'''
 class DinedSeries(pd.Series):
     '''
     A DinedSeiries is a subclass of pandas.Series that constructs individual measures
@@ -46,7 +50,7 @@ class DinedDataFrame(pd.DataFrame):
         pass
 
 def load_dataset_metadata(path: str):
-    return fl.Package(descriptor=path)
+    return Package(descriptor=path)
 
     
 # load study creates a dataframe with the study data extended with the study metadata
@@ -57,11 +61,10 @@ def load_study(path: str, package=None):
     study_metadata = []
     # identify study filename and id in package
     if package is not None:
-        package = fl.Package(descriptor=package)
+        package = Package(descriptor=package)
         # remove the directory path 
         study_name = os.path.basename(path)
         study_metadata = [r for r in package.resources if r['path'] == f'./data/{study_name}'][0]
-        print(study_metadata)
     
     # add study metadata to dataframe
     for key, value in study_metadata.items():
@@ -69,6 +72,33 @@ def load_study(path: str, package=None):
             setattr(study, key, value)
 
     return study
+
+'''
+here is pandas way of extending the DataFrame class
+'''
+@pd.api.extensions.register_dataframe_accessor("study")
+class StudyAccessor:
+    def __init__(self, pandas_obj):
+        self._obj = pandas_obj
+
+    def load_study(self, path: str, package=None):
+        '''Procedure to create a DinedDataFrame from a study csv file and a data package description'''
+        study = self._obj
+        study = pd.read_csv(path)
+        study_metadata = []
+        # identify study filename and id in package
+        if package is not None:
+            package = Package(descriptor=package)
+            # remove the directory path 
+            study_name = os.path.basename(path)
+            study_metadata = [r for r in package.resources if r['path'] == f'./data/{study_name}'][0]
+        
+            # add study metadata to dataframe
+            for key, value in study_metadata.items():
+                if key != 'schema':
+                    setattr(study, key, value)
+
+        return study
 
 
     

@@ -37,8 +37,3 @@ def test_file_name_matches_regexp(id_regexp: str, target_dir: str):
     files = os.listdir(target_dir)
     for file in files:
         assert re.match(id_regexp, file) is not None
-    
-# Test that the count of studies in database matches the list of data files
-
-
-# Integration test
